@@ -32,10 +32,10 @@ function App() {
     });
     setTodo(newData);
 
-    const done = todo.filter((elem, ind) => {
+    const addtoDone = todo.filter((elem, ind) => {
       return ind === id;
     });
-    setComplete([...complete, done]);
+    setComplete([...complete, addtoDone]);
   }
 
   function removeCompleteItem(id) {
@@ -43,6 +43,11 @@ function App() {
       return ind !== id;
     });
     setComplete(newcData);
+
+    const addtoDo = complete.filter((elem, ind) => {
+      return ind === id;
+    });
+    setTodo([...todo, addtoDo]);
   }
 
   return (
@@ -108,7 +113,7 @@ function App() {
                   return (
                     <li className="d-flex justify-content-between" key={ind}>
                       {item}
-                      <button className="btn btn-outline-danger btn-sm py-0 my-0">
+                      <button className="btn btn-outline-success btn-sm py-0 my-0">
                         <i
                           className="fa fa-remove"
                           onClick={() => removeCompleteItem(ind)}
