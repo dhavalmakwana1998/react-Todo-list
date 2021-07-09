@@ -4,20 +4,38 @@ import "bootstrap/dist/css/bootstrap.min.css";
 
 function App() {
   const [inputData, setInputData] = useState("");
-  const [todo, setTodo] = useState(["Dhaval", "Take out the trash"]);
-  const [complete, setComplete] = useState([]);
+  const [todo, setTodo] = useState([{ id: 1, task: "AP" }]);
+  const [complete, setComplete] = useState([{ id: 101, task: "DM" }]);
+  const [isEdit, setIsEdit] = useState(false);
+  const [editTodo, setEditTodo] = useState(null);
 
   function addTodo() {
     if (!inputData || !inputData.trim()) {
       alert("please add data");
       setInputData("");
+    } else if (inputData && isEdit) {
+      setTodo(
+        todo.map((elem) => {
+          if (elem.id === editTodo) {
+            return { ...elem, task: inputData };
+            // console.log(...elem);
+          }
+          return elem;
+        })
+      );
+      setInputData("");
+      setIsEdit(false);
+      setEditTodo(null);
     } else {
-      setTodo([...todo, inputData]);
+      const allInput = { id: new Date().getTime().toString(), task: inputData };
+      setTodo([...todo, allInput]);
       setInputData("");
     }
   }
 
   function removeAll() {
+    setInputData("");
+    setIsEdit(false);
     if (todo.length <= 0) {
       alert("All Read");
     } else {
@@ -26,26 +44,40 @@ function App() {
     }
   }
 
-  function removeItem(id) {
-    const newData = todo.filter((elem, ind) => {
-      return ind !== id;
+  function editItem(id) {
+    setInputData("");
+    setIsEdit(true);
+    const editItem = todo.find((elem) => {
+      return id === elem.id;
     });
-    setTodo(newData);
+    setInputData(editItem.task);
+    setEditTodo(id);
+  }
 
-    const addtoDone = todo.filter((elem, ind) => {
-      return ind === id;
+  function removeItem(id) {
+    setInputData("");
+    setIsEdit(false);
+    const addtoDone = todo.find((elem) => {
+      return id === elem.id;
     });
     setComplete([...complete, addtoDone]);
+
+    const newData = todo.filter((elem) => {
+      return id !== elem.id;
+    });
+    setTodo(newData);
   }
 
   function removeCompleteItem(id) {
-    const newcData = complete.filter((elem, ind) => {
-      return ind !== id;
+    setInputData("");
+    setIsEdit(false);
+    const newcData = complete.filter((elem) => {
+      return elem.id !== id;
     });
     setComplete(newcData);
 
-    const addtoDo = complete.filter((elem, ind) => {
-      return ind === id;
+    const addtoDo = complete.find((elem) => {
+      return elem.id === id;
     });
     setTodo([...todo, addtoDo]);
   }
@@ -67,12 +99,21 @@ function App() {
                 />
                 <div className="input-group-append">
                   <span className="">
-                    <button
-                      className="btn btn-success rounded-0"
-                      onClick={addTodo}
-                    >
-                      <i className="fa fa-plus"></i>
-                    </button>
+                    {isEdit ? (
+                      <button
+                        className="btn btn-warning rounded-0"
+                        onClick={addTodo}
+                      >
+                        <i className="fa fa-edit"></i>
+                      </button>
+                    ) : (
+                      <button
+                        className="btn btn-success rounded-0"
+                        onClick={addTodo}
+                      >
+                        <i className="fa fa-plus"></i>
+                      </button>
+                    )}
                   </span>
                 </div>
               </div>
@@ -82,19 +123,29 @@ function App() {
 
               <hr />
               <ul id="sortable" className="list-unstyled">
-                {todo.map((item, ind) => {
-                  return (
-                    <li className="ui-state-default" key={ind + 1}>
-                      <div className="font-weight-bold checkbox d-flex justify-content-between">
-                        {item}
-                        <i
-                          onClick={() => removeItem(ind)}
-                          className="fa fa-trash text-danger"
-                        ></i>
-                      </div>
-                    </li>
-                  );
-                })}
+                {!todo.length ? (
+                  <h5 className="bg-warning text-center">No data found</h5>
+                ) : (
+                  todo.map((item) => {
+                    return (
+                      <li className="ui-state-default my-1" key={item.id}>
+                        <div className="font-weight-bold checkbox d-flex justify-content-between">
+                          <div>{item.task}</div>
+                          <div>
+                            <i
+                              onClick={() => editItem(item.id)}
+                              className="mr-3 fa fa-edit text-dark p-2 rounded bg-warning fa-md"
+                            ></i>
+                            <i
+                              onClick={() => removeItem(item.id)}
+                              className="fa fa-trash text-light p-2 rounded bg-danger fa-md"
+                            ></i>
+                          </div>
+                        </div>
+                      </li>
+                    );
+                  })
+                )}
               </ul>
               <div className="todo-footer">
                 <strong>
@@ -109,19 +160,26 @@ function App() {
             <div className="card p-4 stodolist">
               <h1>Already Done</h1>
               <ul id="done-items" className="list-unstyled">
-                {complete.map((item, ind) => {
-                  return (
-                    <li className="d-flex justify-content-between" key={ind}>
-                      {item}
-                      <button className="btn btn-outline-success btn-sm py-0 my-0">
-                        <i
-                          className="fa fa-remove"
-                          onClick={() => removeCompleteItem(ind)}
-                        ></i>
-                      </button>
-                    </li>
-                  );
-                })}
+                {!complete.length ? (
+                  <h5 className="bg-warning text-center">No data found</h5>
+                ) : (
+                  complete.map((item) => {
+                    return (
+                      <li
+                        className="d-flex justify-content-between"
+                        key={item.id}
+                      >
+                        {item.task}
+                        <button className="btn btn-outline-success btn-sm py-0 my-0">
+                          <i
+                            className="fa fa-remove"
+                            onClick={() => removeCompleteItem(item.id)}
+                          ></i>
+                        </button>
+                      </li>
+                    );
+                  })
+                )}
               </ul>
             </div>
           </div>
