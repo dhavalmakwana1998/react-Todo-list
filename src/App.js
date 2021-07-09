@@ -85,6 +85,9 @@ function App() {
   return (
     <div className="App">
       <div className="container">
+        {/* <div className="my-4 py-2 my-alert">
+          {isAlert && <Alert type={1} />}
+        </div> */}
         <div className="row">
           <div className="col-md-6">
             <div className="card todolist not-done">

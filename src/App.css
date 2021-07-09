@@ -46,3 +46,22 @@ li.ui-state-default:last-child {
 #checkAll {
   margin-top: 10px;
 }
+
+.alert.alert-success {
+  position: fixed;
+  right: 10%;
+  min-width: 380px;
+  max-width: 380px;
+  animation: fadeIn 0.3s ease-in both;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(20%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
