@@ -1,17 +1,57 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
+import Loader from "./Loader";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+const getData = () => {
+  let data = localStorage.getItem("todoData");
+  // console.log(JSON.parse(data));
+  if (data) {
+    return JSON.parse(localStorage.getItem("todoData"));
+  } else {
+    return [];
+  }
+};
+
+const getDoneData = () => {
+  let data = localStorage.getItem("todoDoneData");
+  // console.log(JSON.parse(data));
+  if (data) {
+    return JSON.parse(localStorage.getItem("todoDoneData"));
+  } else {
+    return [];
+  }
+};
 
 function App() {
   const [inputData, setInputData] = useState("");
-  const [todo, setTodo] = useState([{ id: 1, task: "AP" }]);
-  const [complete, setComplete] = useState([{ id: 101, task: "DM" }]);
+  const [todo, setTodo] = useState(getData());
+  const [complete, setComplete] = useState(getDoneData());
   const [isEdit, setIsEdit] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [editTodo, setEditTodo] = useState(null);
+  const inputref = useRef(null);
+  useEffect(() => {
+    setTimeout(() => {
+      setLoading(false);
+    }, 1500);
+  }, []);
 
   function addTodo() {
     if (!inputData || !inputData.trim()) {
-      alert("please add data");
+      toast.error("please add input", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+      inputref.current.focus();
+      inputref.current.style.borderColor = "red";
       setInputData("");
     } else if (inputData && isEdit) {
       setTodo(
@@ -23,6 +63,15 @@ function App() {
           return elem;
         })
       );
+      toast.warning("Task update successfully!", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
       setInputData("");
       setIsEdit(false);
       setEditTodo(null);
@@ -30,6 +79,15 @@ function App() {
       const allInput = { id: new Date().getTime().toString(), task: inputData };
       setTodo([...todo, allInput]);
       setInputData("");
+      toast.success("Task added successfully!", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
     }
   }
 
@@ -66,6 +124,15 @@ function App() {
       return id !== elem.id;
     });
     setTodo(newData);
+    toast.info("Task move to complete!", {
+      position: "top-center",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+    });
   }
 
   function removeCompleteItem(id) {
@@ -82,8 +149,17 @@ function App() {
     setTodo([...todo, addtoDo]);
   }
 
+  useEffect(() => {
+    localStorage.setItem("todoData", JSON.stringify(todo));
+    localStorage.setItem("todoDoneData", JSON.stringify(complete));
+  }, [todo, complete]);
+
+  if (loading) {
+    return <Loader />;
+  }
   return (
     <div className="App">
+      <ToastContainer />
       <div className="container">
         {/* <div className="my-4 py-2 my-alert">
           {isAlert && <Alert type={1} />}
@@ -94,11 +170,13 @@ function App() {
               <h1>Todos</h1>
               <div className="input-group mb-3">
                 <input
+                  ref={inputref}
                   type="text"
                   className="form-control add-todo"
                   placeholder="Add todo"
                   value={inputData}
                   onChange={(e) => setInputData(e.target.value)}
+                  style={{ boxShadow: "none", borderWidth: "1.5px" }}
                 />
                 <div className="input-group-append">
                   <span className="">
